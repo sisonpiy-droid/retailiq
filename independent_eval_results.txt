@@ -1,0 +1,2 @@
+Golden: Total=40, Pass=32, Fail=8
+Holdout: Total=30, Pass=21, Fail=9

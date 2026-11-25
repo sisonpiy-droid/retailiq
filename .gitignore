@@ -1,0 +1,5 @@
+.env
+retail.db
+venv/
+__pycache__/
+*.zip
