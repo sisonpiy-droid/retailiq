@@ -59,7 +59,7 @@ def llm_route(q: str):
 def parse_intent(question: str):
     """Hybrid routing logic determining whether to use regex deterministic paths or LLM."""
     q = question.lower()
-    simple_keywords = ["revenue", "profit", "qty", "quantity", "sold", "product", "item"]
+    simple_keywords = ["revenue", "profit", "qty", "quantity", "sold", "product", "item", "sales"]
     complex_keywords = ["average", "trend", "discount", "margin", "traffic", "category", "city", "region"]
     
     intent = None
@@ -82,13 +82,13 @@ def build_sql(intent, user_stores, q=""):
     params = list(user_stores)
     
     queries = {
-        "revenue": f"SELECT SUM(qty * unit_price * (1.0 - COALESCE(discount_pct, 0.0))) as val FROM sales WHERE is_return = 0 AND store_id IN ({store_placeholder})",
-        "profit": f"SELECT SUM(s.qty * (s.unit_price * (1.0 - COALESCE(s.discount_pct, 0.0)) - p.unit_cost)) as val FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.is_return = 0 AND s.store_id IN ({store_placeholder})",
+        "revenue": f"SELECT SUM(qty * unit_price * (1.0 - (COALESCE(discount_pct, 0.0) / 100.0))) as val FROM sales WHERE is_return = 0 AND store_id IN ({store_placeholder})",
+        "profit": f"SELECT SUM(s.qty * (s.unit_price * (1.0 - (COALESCE(s.discount_pct, 0.0) / 100.0)) - p.unit_cost)) as val FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.is_return = 0 AND s.store_id IN ({store_placeholder})",
         "qty": f"SELECT SUM(qty) as val FROM sales WHERE is_return = 0 AND store_id IN ({store_placeholder})"
     }
     
     if intent.get("entity") == "product" and "by product" in q.lower():
-        queries["revenue"] = f"SELECT p.product_name, SUM(s.qty * s.unit_price * (1.0 - COALESCE(s.discount_pct, 0.0))) as val FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.is_return = 0 AND s.store_id IN ({store_placeholder}) GROUP BY p.product_name ORDER BY val DESC LIMIT 5"
+        queries["revenue"] = f"SELECT p.product_name, SUM(s.qty * s.unit_price * (1.0 - (COALESCE(s.discount_pct, 0.0) / 100.0))) as val FROM sales s JOIN products p ON s.product_id = p.product_id WHERE s.is_return = 0 AND s.store_id IN ({store_placeholder}) GROUP BY p.product_name ORDER BY val DESC LIMIT 5"
     
     return queries.get(intent.get("metric", "revenue"), queries["revenue"]), params
 
