@@ -4,12 +4,21 @@ import pandas as pd
 import time
 import requests
 import os
-from fastapi import FastAPI, HTTPException
+import logging
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 
-app = FastAPI()
+# Configure Enterprise-Grade Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger("RetailIQ-Backend")
+
+app = FastAPI(
+    title="RetailIQ Analytics Engine",
+    description="Next-generation hybrid AI analytics engine for enterprise retail.",
+    version="2.0.0"
+)
 
 DB_PATH = "retail.db"
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "sk-or-...1be7")
@@ -48,6 +57,7 @@ def llm_route(q: str):
         return None
 
 def parse_intent(question: str):
+    """Hybrid routing logic determining whether to use regex deterministic paths or LLM."""
     q = question.lower()
     simple_keywords = ["revenue", "profit", "qty", "quantity", "sold", "product", "item"]
     complex_keywords = ["average", "trend", "discount", "margin", "traffic", "category", "city", "region"]
@@ -67,6 +77,7 @@ def parse_intent(question: str):
     return intent
 
 def build_sql(intent, user_stores, q=""):
+    """Builds parameterized SQL enforcing Row-Level Security via store_id constraints."""
     store_placeholder = ', '.join(['?'] * len(user_stores))
     params = list(user_stores)
     
