@@ -114,7 +114,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-8">Ask RetailIQ</h1>
             <form onSubmit={handleAsk} className="mb-8">
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <input 
                   type="text" 
                   value={question}
@@ -130,6 +130,14 @@ export default function DashboardPage() {
                   {loading ? "Analyzing..." : "Analyze"}
                 </button>
               </div>
+              <div className="flex flex-col gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    <button type="button" onClick={() => setQuestion("Show me the net sales")} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-full border">Show me the net sales</button>
+                    <button type="button" onClick={() => setQuestion("What is my total profit?")} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-full border">What is my total profit?</button>
+                    <button type="button" onClick={() => setQuestion("Top performing products by revenue")} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-full border">Top performing products by revenue</button>
+                    <button type="button" onClick={() => setQuestion("How many total items were sold?")} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-full border">How many total items were sold?</button>
+                  </div>
+                </div>
             </form>
 
             <div className="space-y-6">
